@@ -1,0 +1,15 @@
+### STAR   --runMode genomeGenerate   --runThreadN 4   --genomeDir indices/   --genomeFastaFiles fastafiles/Mus_musculus.GRCm38.dna.chromosome.1.fa   
+versionGenome	20201
+genomeFastaFiles	fastafiles/Mus_musculus.GRCm38.dna.chromosome.1.fa 
+genomeSAindexNbases	14
+genomeChrBinNbits	18
+genomeSAsparseD	1
+sjdbOverhang	0
+sjdbFileChrStartEnd	- 
+sjdbGTFfile	-
+sjdbGTFchrPrefix	-
+sjdbGTFfeatureExon	exon
+sjdbGTFtagExonParentTranscript	transcript_id
+sjdbGTFtagExonParentGene	gene_id
+sjdbInsertSave	Basic
+genomeFileSizes	195559424 1583250837

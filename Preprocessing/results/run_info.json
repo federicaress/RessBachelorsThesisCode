@@ -1,0 +1,13 @@
+{
+	"n_targets": 68381,
+	"n_bootstraps": 100,
+	"n_processed": 68381,
+	"n_pseudoaligned": 65603,
+	"n_unique": 39798,
+	"p_pseudoaligned": 95.9,
+	"p_unique": 58.2,
+	"kallisto_version": "0.46.0",
+	"index_version": 10,
+	"start_time": "Fri Jun  5 11:28:45 2020",
+	"call": "kallisto quant -i kallisto/Mus_musculus.GRCm38.cds.all.idx -o results/ -b 100 --single -l 180 -s 20 fastafiles/Mus_musculus.GRCm38.cds.all.fa"
+}
