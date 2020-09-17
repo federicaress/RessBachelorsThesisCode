@@ -3,41 +3,59 @@ from snakemake.shell import shell
 rule all:
     input:
         dnafasta = "fastafiles/Mus_musculus.GRCm38.dna.chromosome.1.fa",
-        cdsfasta = "fastafiles/Mus_musculus.GRCm38.cds.all.fa"
+        # cdsfasta = "fastafiles/Mus_musculus.GRCm38.cds.all.fa"
 
-rule star_genome_generate:
-    #input: "fastafiles/Mus_musculus.GRCm38.dna.chromosome.1.fa"
-    output: "indices/Genome"
-    shell:"STAR --runThreadN 4 --runMode genomeGenerate --genomeDir {output} --genomeFastaFiles {input.dnafasta}"
+# rule star_genome_generate:
+#     #input: "fastafiles/Mus_musculus.GRCm38.dna.chromosome.1.fa"
+#     input:
+#         dnafasta = "fastafiles/Mus_musculus.GRCm38.dna.chromosome.1.fa",
+#         cdsfasta = "fastafiles/Mus_musculus.GRCm38.cds.all.fa"
+#     output: directory("indices/")
+#     shell:"STAR --runThreadN 4 --runMode genomeGenerate --genomeDir {output} --genomeFastaFiles {input.dnafasta}"
 
 rule star_alignment:
-    #input:"fastafiles/Mus_musculus.GRCm38.cds.all.fa"
-    output:"results/Log.out"
-
-    shell: "STAR --runThreadN 4 --genomeDir indices/ --readFilesIn {input.cdsfasta} --outFileNamePrefix {output}"
+    input:
+        dnafasta = "fastafiles/Mus_musculus.GRCm38.dna.chromosome.1.fa",
+        firstfile = "fastqfiles/ERR522959_1.fastq",
+        secondfile = "fastqfiles/ERR522959_2.fastq"
+    output: directory("results/")
+    shell: "STAR --runThreadN 4 --genomeDir indices/ --readFilesIn {input.firstfile} {input.secondfile} --outFileNamePrefix {output}"
 
 rule kallisto_index:
-    #input:  "fastafiles/Mus_musculus.GRCm38.cds.all.fa"
-    output:"kallisto/Mus_musculus.GRCm38.cds.all.idx"
-    shell: "kallisto index -i {output} {input.cdsfasta} "
-
-rule kallisto_quant:
     input:
-        index = "kallisto/Mus_musculus.GRCm38.cds.all.idx",
-        cdsfasta = "fastafiles/Mus_musculus.GRCm38.cds.all.fa"
-    output: "results/run_info.json"
-    shell:"kallisto quant -i {input.index} -o {output} -b 100 --single -l 180 -s 20 {input.cdsfasta}"
+        firstfile = "fastqfiles/ERR522959_1.fastq",
+        secondfile = "fastqfiles/ERR522959_2.fastq"
+    output:"kallisto/indices.idx"
+    shell: "kallisto index -i {output} {input.firstfile} {input.secondfile} "
+ #
+ # rule kallisto_quant:
+ #     input:
+ #         index = "kallisto/Mus_musculus.GRCm38.cds.all.idx",
+ #         cdsfasta = "fastafiles/Mus_musculus.GRCm38.cds.all.fa"
+ #     output: directory("results/")
+ #     shell:"kallisto quant -i {input.index} -o {output} -b 100 --single -l 180 -s 20 {input.cdsfasta}"
 
+rule kallistopseudo:
+    input:
+        index = "kallisto/indices.idx",
+        firstfile = "fastqfiles/ERR522959_1.fastq",
+        secondfile = "fastqfiles/ERR522959_2.fastq"
+    output: directory("out/")
+    shell:"kallisto pseudo -i {input} -o {output} {input.firstfile} {input.secondfile}"
 rule samtools_view:
-    input: "results/Aligned.out.sam"
-    output: "results/Aligned.out.bam"
+    input: "Aligned.out.sam"
+    output: "Aligned.out.bam"
     shell:"samtools view -S -b {input} > {output}"
 
 rule samtools_sort:
-    input: "results/Aligned.out.bam"
-    output: "results/Aligned.out.sorted.bam"
-    shell: "samtools sort {input} -o {output}"
+    input: "Aligned.out.bam"
+    output: "Aligned.out.sorted.bam"
+    shell:"samtools sort {input} -o {output}"
 
 rule samtools_index:
-    input: "results/Aligned.out.sorted.bam"
-    shell: "samtools index {input}"
+    input: "Aligned.out.sorted.bam"
+    shell:"samtools index {input}"
+
+rule samtools_percentage:
+    input: "Aligned.out.bam"
+    shell:"samtools flagstat Aligned.out.bam"
